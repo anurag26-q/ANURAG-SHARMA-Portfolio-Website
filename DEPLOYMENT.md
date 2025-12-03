@@ -1,124 +1,98 @@
-# Deploying to Render
-
-This guide will help you deploy your portfolio website to Render as a static site.
+# Deploying Anurag Sharma Portfolio to Render
 
 ## Prerequisites
+1. GitHub account
+2. Render account (sign up at https://render.com)
+3. Your code pushed to GitHub
 
-- A [Render account](https://render.com) (free tier available)
-- Your code pushed to a GitHub repository
-- A Gemini API key from [Google AI Studio](https://aistudio.google.com/app/apikey)
+## Step-by-Step Deployment Guide
 
-## Deployment Steps
+### 1. Push Your Code to GitHub
+```bash
+git add .
+git commit -m "Ready for Render deployment"
+git push origin main
+```
 
-### Option 1: Using render.yaml (Recommended)
+### 2. Create New Static Site on Render
 
-1. **Push your code to GitHub**
-   ```bash
-   git add .
-   git commit -m "Prepare for Render deployment"
-   git push origin main
-   ```
-
-2. **Create a New Static Site on Render**
-   - Go to [Render Dashboard](https://dashboard.render.com/)
-   - Click **"New +"** → **"Static Site"**
-   - Connect your GitHub repository
-   - Render will automatically detect the `render.yaml` file
-
-3. **Configure Environment Variables**
-   - In the Render dashboard, go to your static site
-   - Navigate to **"Environment"** tab
-   - Add the following environment variable:
-     - **Key**: `GEMINI_API_KEY`
-     - **Value**: Your Gemini API key from Google AI Studio
-
-4. **Deploy**
-   - Click **"Create Static Site"**
-   - Render will automatically build and deploy your site
-   - Your site will be live at: `https://your-site-name.onrender.com`
-
-### Option 2: Manual Configuration
-
-If you prefer not to use `render.yaml`:
-
-1. **Create New Static Site**
-   - Go to Render Dashboard → **"New +"** → **"Static Site"**
-   - Connect your GitHub repository
-
-2. **Configure Build Settings**
+1. Go to https://dashboard.render.com
+2. Click **"New +"** button → Select **"Static Site"**
+3. Connect your GitHub repository
+4. Configure the site:
+   - **Name**: `anurag-sharma-portfolio`
+   - **Branch**: `main`
    - **Build Command**: `npm install && npm run build`
    - **Publish Directory**: `dist`
 
-3. **Add Environment Variables**
-   - Add `GEMINI_API_KEY` with your API key value
+### 3. Add Environment Variables
 
-4. **Deploy**
-   - Click **"Create Static Site"**
+In the Render dashboard, go to **Environment** tab and add:
 
-## Post-Deployment
+```
+GEMINI_API_KEY=your-actual-gemini-api-key
+GEMINI_MODEL=gemini-2.0-flash-exp
+```
 
-### Verify Deployment
-- Visit your Render URL
-- Test all features, especially the AI chat functionality
-- Check browser console for any errors
+⚠️ **IMPORTANT**: Replace `your-actual-gemini-api-key` with your actual API key from the `.env` file
 
-### Custom Domain (Optional)
-1. Go to your static site settings on Render
-2. Navigate to **"Custom Domains"**
-3. Click **"Add Custom Domain"**
-4. Follow the instructions to configure your DNS settings
+### 4. Deploy!
 
-### Automatic Deployments
-Render automatically deploys your site when you push to your main branch. To disable this:
-1. Go to **"Settings"** → **"Build & Deploy"**
-2. Toggle **"Auto-Deploy"** off
+Click **"Create Static Site"** and Render will:
+- Install dependencies
+- Build your React app
+- Deploy it to a live URL
 
-## Environment Variables
+## Your Live URL
 
-Your app requires the following environment variable:
+After deployment, your portfolio will be available at:
+```
+https://anurag-sharma-portfolio.onrender.com
+```
 
-| Variable | Description | Required |
-|----------|-------------|----------|
-| `GEMINI_API_KEY` | Your Google Gemini API key | Yes |
+(or the custom URL Render provides)
+
+## Features Deployed
+
+✅ Futuristic loading screen with your name
+✅ Dark/Light mode toggle
+✅ JARVIS AI chatbot (with Gemini API)
+✅ Resume download
+✅ Contact section with LinkedIn, GitHub, Phone
+✅ Responsive design
+✅ Smooth animations
 
 ## Troubleshooting
 
-### Build Fails
-- Check the build logs in Render dashboard
-- Ensure all dependencies are in `package.json`
-- Verify Node.js version compatibility
+### Build Fails?
+- Check that `package.json` has all dependencies
+- Ensure Node version is 18+
 
-### API Key Not Working
-- Ensure `GEMINI_API_KEY` is set in Render environment variables
-- Check that the variable name matches what's in `vite.config.ts`
-- Redeploy after adding environment variables
+### AI Chat Not Working?
+- Verify `GEMINI_API_KEY` is set correctly in Render environment variables
+- Check browser console for errors
 
-### 404 Errors on Routes
-- Render static sites handle routing automatically for SPAs
-- If issues persist, check your Vite configuration
+### Resume Download Not Working?
+- Make sure `resume.pdf` file is in the `public/` folder
+- Commit and push the file to GitHub
 
-### Assets Not Loading
-- Verify the `base` path in `vite.config.ts` is set to `'/'`
-- Check the browser console for CORS or path errors
+## Updating Your Site
 
-## Monitoring
+Whenever you push changes to GitHub main branch, Render will automatically rebuild and redeploy!
 
-- View deployment logs in Render dashboard
-- Monitor site performance in the **"Metrics"** tab
-- Set up notifications for deployment failures
+```bash
+git add .
+git commit -m "Update portfolio"
+git push origin main
+```
 
-## Costs
+## Custom Domain (Optional)
 
-- Render offers a **free tier** for static sites
-- Free tier includes:
-  - 100 GB bandwidth/month
-  - Automatic SSL certificates
-  - Global CDN
-  - Continuous deployment from Git
+To use your own domain (e.g., `anurag-sharma.com`):
+1. Go to Render dashboard → Settings → Custom Domain
+2. Add your domain
+3. Update DNS records as instructed by Render
 
-## Support
+---
 
-For issues specific to Render, check:
-- [Render Documentation](https://render.com/docs/static-sites)
-- [Render Community](https://community.render.com/)
-- [Render Status](https://status.render.com/)
+🎉 **Your portfolio is now live!** Share it with recruiters and showcase your AI/ML expertise!

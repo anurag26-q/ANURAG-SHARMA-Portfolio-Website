@@ -1,6 +1,6 @@
 import { GoogleGenAI } from "@google/genai";
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
 const SYSTEM_INSTRUCTION = `
 You are "Anurag's Assistant", an AI bot for the portfolio website of Anurag Sharma.
@@ -46,8 +46,8 @@ export const streamGeminiResponse = async (
   userMessage: string
 ) => {
   try {
-    const model = 'gemini-2.5-flash';
-    
+    const model = process.env.GEMINI_MODEL || 'gemini-2.0-flash-exp';
+
     const chat = ai.chats.create({
       model: model,
       config: {

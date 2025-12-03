@@ -9,7 +9,7 @@ const projects: Project[] = [
     title: "Support Chatbot (RAG)",
     description: "Designed and deployed an enterprise-grade RAG-based chatbot using FAISS and Gemini LLM. Supports document ingestion (PDFs, CSVs) with adaptive top-k retrieval and hybrid search. Handles 1K+ daily interactions.",
     tags: ["Python", "Gemini API", "FAISS", "RAG", "Flask"],
-    imageUrl: "", 
+    imageUrl: "",
     repoUrl: "https://github.com/anurag26-q",
     demoUrl: ""
   },
@@ -35,12 +35,12 @@ const projects: Project[] = [
 
 export const Projects: React.FC = () => {
   return (
-    <section id="projects" className="py-24 relative">
+    <section id="projects" className="py-24 relative transition-colors duration-300">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <RevealOnScroll>
-          <h2 className="flex items-center text-2xl md:text-3xl font-bold text-slate-100 mb-12">
-            <span className="text-primary-500 font-mono mr-2">03.</span> Notable Projects
-            <span className="hidden md:block ml-4 h-px bg-slate-800 flex-grow max-w-xs"></span>
+          <h2 className="flex items-center text-2xl md:text-3xl font-bold text-slate-900 dark:text-slate-100 mb-12">
+            <span className="text-primary-600 dark:text-primary-500 font-mono mr-2">03.</span> Notable Projects
+            <span className="hidden md:block ml-4 h-px bg-slate-200 dark:bg-slate-800 flex-grow max-w-xs"></span>
           </h2>
         </RevealOnScroll>
 
@@ -97,7 +97,7 @@ const ProjectCard: React.FC<{ project: Project }> = ({ project }) => {
       onBlur={handleBlur}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
-      className="group relative bg-slate-800/50 backdrop-blur-sm rounded-xl overflow-hidden h-full border border-slate-700/50 transition-all duration-300 hover:-translate-y-2"
+      className="group relative bg-white dark:bg-slate-800/50 backdrop-blur-sm rounded-xl overflow-hidden h-full border border-slate-200 dark:border-slate-700/50 transition-all duration-300 hover:-translate-y-2 shadow-sm dark:shadow-none"
     >
       {/* Spotlight Effect */}
       <div
@@ -107,31 +107,31 @@ const ProjectCard: React.FC<{ project: Project }> = ({ project }) => {
           background: `radial-gradient(600px circle at ${position.x}px ${position.y}px, rgba(99, 102, 241, 0.15), transparent 40%)`,
         }}
       />
-      
+
       {/* Content */}
       <div className="relative p-8 flex flex-col h-full z-10">
         <div className="flex justify-between items-center mb-6">
-          <div className="p-3 bg-slate-900/50 rounded-lg group-hover:text-primary-400 transition-colors border border-slate-700/50 group-hover:border-primary-500/30">
-            <Folder className="w-8 h-8 text-primary-500" />
+          <div className="p-3 bg-slate-100 dark:bg-slate-900/50 rounded-lg group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors border border-slate-200 dark:border-slate-700/50 group-hover:border-primary-500/30">
+            <Folder className="w-8 h-8 text-primary-600 dark:text-primary-500" />
           </div>
           <div className="flex gap-4 text-slate-400">
             {project.repoUrl && (
-              <a 
-                href={project.repoUrl} 
-                target="_blank" 
-                rel="noreferrer" 
-                className="hover:text-primary-400 transition-colors hover:scale-110 transform duration-200 z-20"
+              <a
+                href={project.repoUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="text-slate-500 dark:text-slate-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors hover:scale-110 transform duration-200 z-20"
                 aria-label="View Source Code"
               >
                 <Github className="w-5 h-5" />
               </a>
             )}
             {project.demoUrl && (
-              <a 
-                href={project.demoUrl} 
-                target="_blank" 
-                rel="noreferrer" 
-                className="hover:text-primary-400 transition-colors hover:scale-110 transform duration-200 z-20"
+              <a
+                href={project.demoUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="text-slate-500 dark:text-slate-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors hover:scale-110 transform duration-200 z-20"
                 aria-label="View Live Demo"
               >
                 <ExternalLink className="w-5 h-5" />
@@ -140,17 +140,17 @@ const ProjectCard: React.FC<{ project: Project }> = ({ project }) => {
           </div>
         </div>
 
-        <h3 className="text-xl font-bold text-slate-100 mb-2 group-hover:text-primary-400 transition-colors">
+        <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100 mb-2 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
           {project.title}
         </h3>
 
-        <p className="text-slate-400 mb-6 text-sm leading-relaxed flex-1">
+        <p className="text-slate-600 dark:text-slate-400 mb-6 text-sm leading-relaxed flex-1">
           {project.description}
         </p>
 
         <ul className="flex flex-wrap gap-2 mt-auto">
           {project.tags.map(tag => (
-            <li key={tag} className="text-xs font-mono text-slate-500 mr-2 bg-slate-900/30 px-2 py-1 rounded">
+            <li key={tag} className="text-xs font-mono text-slate-500 mr-2 bg-slate-100 dark:bg-slate-900/30 px-2 py-1 rounded">
               {tag}
             </li>
           ))}

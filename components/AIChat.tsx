@@ -5,10 +5,11 @@ import { ChatMessage, ChatSender } from '../types';
 
 export const AIChat: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [showPrompt, setShowPrompt] = useState(true);
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       id: '1',
-      text: "Hi! I'm DevBot, Alex's AI Assistant. Ask me anything about his skills, experience, or projects!",
+      text: "Hi! I'm JARVIS, Anurag's AI Assistant. Ask me anything about his skills, experience, or projects!",
       sender: ChatSender.SYSTEM,
       timestamp: new Date()
     }
@@ -24,6 +25,13 @@ export const AIChat: React.FC = () => {
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  // Hide prompt when chat is opened
+  useEffect(() => {
+    if (isOpen) {
+      setShowPrompt(false);
+    }
+  }, [isOpen]);
 
   const handleSendMessage = async (e?: React.FormEvent) => {
     e?.preventDefault();
@@ -59,16 +67,16 @@ export const AIChat: React.FC = () => {
       }]);
 
       const streamResult = await streamGeminiResponse(history, userMsg.text);
-      
+
       let fullText = '';
       for await (const chunk of streamResult) {
-         const text = chunk.text;
-         if (text) {
-             fullText += text;
-             setMessages(prev => prev.map(msg => 
-                msg.id === aiMsgId ? { ...msg, text: fullText } : msg
-             ));
-         }
+        const text = chunk.text;
+        if (text) {
+          fullText += text;
+          setMessages(prev => prev.map(msg =>
+            msg.id === aiMsgId ? { ...msg, text: fullText } : msg
+          ));
+        }
       }
 
     } catch (error) {
@@ -86,38 +94,60 @@ export const AIChat: React.FC = () => {
 
   return (
     <>
-      {/* Floating Toggle Button */}
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className={`fixed bottom-6 right-6 z-50 p-4 rounded-full shadow-lg transition-all duration-300 hover:scale-110 ${
-          isOpen ? 'bg-slate-700 text-white rotate-90' : 'bg-primary-600 text-white hover:bg-primary-500'
-        }`}
-        aria-label="Toggle AI Chat"
-      >
-        {isOpen ? <X className="w-6 h-6" /> : <MessageSquare className="w-6 h-6" />}
-      </button>
+      {/* Animated Prompt Tooltip */}
+      {showPrompt && !isOpen && (
+        <div className="fixed bottom-24 right-6 z-40 animate-bounce">
+          <div className="bg-gradient-to-r from-primary-600 to-purple-600 text-white px-4 py-2 rounded-lg shadow-xl flex items-center gap-2 relative">
+            <Bot className="w-4 h-4" />
+            <span className="font-medium text-sm whitespace-nowrap">Ask JARVIS!</span>
+            <button
+              onClick={() => setShowPrompt(false)}
+              className="ml-2 hover:bg-white/20 rounded-full p-0.5 transition-colors"
+              aria-label="Dismiss prompt"
+            >
+              <X className="w-3 h-3" />
+            </button>
+            {/* Arrow pointing to button */}
+            <div className="absolute -bottom-2 right-8 w-0 h-0 border-l-8 border-l-transparent border-r-8 border-r-transparent border-t-8 border-t-purple-600"></div>
+          </div>
+        </div>
+      )}
+
+      {/* Floating Toggle Button with Pulse Animation */}
+      <div className="fixed bottom-6 right-6 z-50">
+        {!isOpen && showPrompt && (
+          <span className="absolute inset-0 rounded-full bg-primary-400 animate-ping opacity-75"></span>
+        )}
+        <button
+          onClick={() => setIsOpen(!isOpen)}
+          className={`relative p-4 rounded-full shadow-lg transition-all duration-300 hover:scale-110 ${isOpen ? 'bg-slate-200 dark:bg-slate-700 text-slate-900 dark:text-white rotate-90' : 'bg-primary-600 text-white hover:bg-primary-500'
+            }`}
+          aria-label="Toggle AI Chat"
+        >
+          {isOpen ? <X className="w-6 h-6" /> : <MessageSquare className="w-6 h-6" />}
+        </button>
+      </div>
 
       {/* Chat Window */}
       <div
-        className={`fixed bottom-24 right-6 w-[90vw] md:w-[400px] h-[500px] bg-slate-800 rounded-2xl shadow-2xl z-50 flex flex-col border border-slate-700 transition-all duration-300 origin-bottom-right ${
-          isOpen ? 'scale-100 opacity-100' : 'scale-0 opacity-0 pointer-events-none'
-        }`}
+        className={`fixed bottom-24 right-6 w-[90vw] md:w-[400px] h-[500px] bg-white dark:bg-slate-800 rounded-2xl shadow-2xl z-50 flex flex-col border border-slate-200 dark:border-slate-700 transition-all duration-300 origin-bottom-right ${isOpen ? 'scale-100 opacity-100' : 'scale-0 opacity-0 pointer-events-none'
+          }`}
       >
         {/* Header */}
-        <div className="p-4 border-b border-slate-700 flex justify-between items-center bg-slate-900 rounded-t-2xl">
+        <div className="p-4 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center bg-slate-50 dark:bg-slate-900 rounded-t-2xl">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-full bg-primary-600 flex items-center justify-center">
               <Bot className="w-5 h-5 text-white" />
             </div>
             <div>
-              <h3 className="font-bold text-slate-100">DevBot</h3>
-              <p className="text-xs text-primary-400 flex items-center gap-1">
+              <h3 className="font-bold text-slate-900 dark:text-slate-100">JARVIS</h3>
+              <p className="text-xs text-primary-600 dark:text-primary-400 flex items-center gap-1">
                 <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
                 Online
               </p>
             </div>
           </div>
-          <button onClick={() => setIsOpen(false)} className="text-slate-400 hover:text-white transition-colors">
+          <button onClick={() => setIsOpen(false)} className="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors">
             <Minimize2 className="w-5 h-5" />
           </button>
         </div>
@@ -127,26 +157,23 @@ export const AIChat: React.FC = () => {
           {messages.map((msg) => (
             <div
               key={msg.id}
-              className={`flex items-start gap-2 ${
-                msg.sender === ChatSender.USER ? 'flex-row-reverse' : 'flex-row'
-              }`}
+              className={`flex items-start gap-2 ${msg.sender === ChatSender.USER ? 'flex-row-reverse' : 'flex-row'
+                }`}
             >
               <div
-                className={`w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center ${
-                  msg.sender === ChatSender.USER ? 'bg-slate-600' : 
-                  msg.sender === ChatSender.SYSTEM ? 'bg-slate-700' : 'bg-primary-600'
-                }`}
+                className={`w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center ${msg.sender === ChatSender.USER ? 'bg-slate-200 dark:bg-slate-600' :
+                  msg.sender === ChatSender.SYSTEM ? 'bg-slate-200 dark:bg-slate-700' : 'bg-primary-600'
+                  }`}
               >
-                {msg.sender === ChatSender.USER ? <User className="w-4 h-4" /> : <Bot className="w-4 h-4" />}
+                {msg.sender === ChatSender.USER ? <User className="w-4 h-4 text-slate-700 dark:text-slate-200" /> : <Bot className="w-4 h-4 text-white" />}
               </div>
               <div
-                className={`max-w-[80%] rounded-2xl px-4 py-2 text-sm leading-relaxed ${
-                  msg.sender === ChatSender.USER
-                    ? 'bg-primary-600 text-white rounded-br-none'
-                    : msg.sender === ChatSender.SYSTEM
-                    ? 'bg-slate-700 text-slate-300'
-                    : 'bg-slate-700 text-slate-100 rounded-bl-none'
-                }`}
+                className={`max-w-[80%] rounded-2xl px-4 py-2 text-sm leading-relaxed ${msg.sender === ChatSender.USER
+                  ? 'bg-primary-600 text-white rounded-br-none'
+                  : msg.sender === ChatSender.SYSTEM
+                    ? 'bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300'
+                    : 'bg-slate-100 dark:bg-slate-700 text-slate-900 dark:text-slate-100 rounded-bl-none'
+                  }`}
               >
                 {msg.text}
               </div>
@@ -161,14 +188,14 @@ export const AIChat: React.FC = () => {
         </div>
 
         {/* Input */}
-        <form onSubmit={handleSendMessage} className="p-4 border-t border-slate-700 bg-slate-900 rounded-b-2xl">
+        <form onSubmit={handleSendMessage} className="p-4 border-t border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 rounded-b-2xl">
           <div className="relative">
             <input
               type="text"
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
-              placeholder="Ask about my experience..."
-              className="w-full bg-slate-800 text-white placeholder-slate-500 rounded-full py-3 pl-4 pr-12 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all border border-slate-700"
+              placeholder="Ask about Anurag's experience..."
+              className="w-full bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 rounded-full py-3 pl-4 pr-12 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all border border-slate-200 dark:border-slate-700"
               disabled={isLoading}
             />
             <button
