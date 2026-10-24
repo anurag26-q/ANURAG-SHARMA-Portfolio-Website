@@ -1,20 +1,23 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# Anurag Sharma — Portfolio (Blueprint edition)
 
-# Run and deploy your AI Studio app
+Personal portfolio of **Anurag Sharma, AI/ML Engineer**, designed as an engineering drawing set:
+title sheet, specification, bill of materials (skills), animated system drawings of production
+projects, an archive of earlier builds, revision history (experience) and a sign-off sheet (contact).
+Includes **JARVIS**, a Gemini-powered assistant that answers questions about Anurag's work.
 
-This contains everything you need to run your app locally.
+Built with React 19 + Vite + TypeScript. No CSS framework — all styling is in `index.css`.
 
-View your app in AI Studio: https://ai.studio/apps/drive/13e0SZHM9NjtpppDGr3X9ZvjxLdu3Ym7i
+## Edit content
+Everything (profile, skills, jobs, system diagrams, archive) lives in **`data.ts`**.
+System diagrams are drawn from compact item lists — see the comment at the top of `systems`.
+The resume download is `public/resume.pdf`.
 
-## Run Locally
+## Run locally
+```bash
+npm install
+echo "GEMINI_API_KEY=your-key" > .env.local   # optional, for JARVIS
+npm run dev
+```
 
-**Prerequisites:**  Node.js
-
-
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+## Deploy
+See [DEPLOYMENT.md](DEPLOYMENT.md) (Render static site).
