@@ -1,161 +1,89 @@
-import React, { useRef, useState } from 'react';
-import { Project } from '../types';
-import { Github, ExternalLink, Folder } from 'lucide-react';
-import { RevealOnScroll } from './RevealOnScroll';
+import React from 'react';
+import { Sheet } from './Sheet';
+import { systems, archive, Item, profile } from '../data';
 
-const projects: Project[] = [
-  {
-    id: 1,
-    title: "Support Chatbot (RAG)",
-    description: "Designed and deployed an enterprise-grade RAG-based chatbot using FAISS and Gemini LLM. Supports document ingestion (PDFs, CSVs) with adaptive top-k retrieval and hybrid search. Handles 1K+ daily interactions.",
-    tags: ["Python", "Gemini API", "FAISS", "RAG", "Flask"],
-    imageUrl: "",
-    repoUrl: "https://github.com/anurag26-q",
-    demoUrl: ""
-  },
-  {
-    id: 2,
-    title: "WhatsApp Visa Chatbot",
-    description: "Built a real-time Visa Assistance Chatbot using Rasa and Django. Integrated Gupshup API for WhatsApp automation and PostgreSQL for user query tracking. Deployed with Docker handling multilingual queries.",
-    tags: ["Rasa", "Django", "Gupshup API", "Docker", "PostgreSQL"],
-    imageUrl: "",
-    repoUrl: "https://github.com/anurag26-q",
-    demoUrl: ""
-  },
-  {
-    id: 3,
-    title: "Sentiment Analysis",
-    description: "Fine-tuned BERT using LoRA on IMDb dataset to classify sentiment polarity, achieving 92% F1-score. Reduced model parameters by 70% while maintaining 90% accuracy. Integrated with Streamlit for monitoring.",
-    tags: ["BERT", "LoRA", "PyTorch", "MLflow", "Streamlit"],
-    imageUrl: "",
-    repoUrl: "https://github.com/anurag26-q",
-    demoUrl: ""
-  }
-];
+const delay = (i: number) => ({ transitionDelay: `${(i * 0.1).toFixed(2)}s` });
 
-export const Projects: React.FC = () => {
+/** Renders a blueprint diagram from the compact item list in data.ts */
+const Diagram: React.FC<{ items: Item[]; uid: string }> = ({ items, uid }) => {
+  let k = 0;
+  const out: React.ReactNode[] = [];
+  items.forEach((it, idx) => {
+    const [t, ...v] = it as any[];
+    const d = delay(idx);
+    if (t === 'hbox') { const [x, y, w, h] = v; out.push(<rect key={k++} x={x + 6} y={y + 6} width={w - 12} height={h - 12} className="hb" style={{ fill: `url(#hp-${uid})` }} />); }
+    else if (t === 'box') {
+      const [x, y, w, h, l, s] = v;
+      out.push(<rect key={k++} x={x} y={y} width={w} height={h} rx={3} className="d" pathLength={1} style={d} />);
+      if (l) out.push(<text key={k++} x={x + w / 2} y={y + h / 2 + (s ? -3 : 4)} textAnchor="middle" className="lab" style={d}>{l}</text>);
+      if (s) out.push(<text key={k++} x={x + w / 2} y={y + h / 2 + 14} textAnchor="middle" className="sub" style={d}>{s}</text>);
+    } else if (t === 'dia') {
+      const [cx, cy, w, h, l] = v;
+      out.push(<path key={k++} d={`M${cx - w / 2} ${cy}L${cx} ${cy - h / 2}L${cx + w / 2} ${cy}L${cx} ${cy + h / 2}Z`} className="d" pathLength={1} style={d} />);
+      out.push(<text key={k++} x={cx} y={cy + 4} textAnchor="middle" className="lab" style={d}>{l}</text>);
+    } else if (t === 'circ') {
+      const [cx, cy, r, l] = v;
+      out.push(<circle key={k++} cx={cx} cy={cy} r={r} className="d" pathLength={1} style={d} />);
+      if (l) out.push(<text key={k++} x={cx} y={cy + r + 16} textAnchor="middle" className="sub" style={d}>{l}</text>);
+    } else if (t === 'ln') {
+      out.push(<path key={k++} d={v[0]} className="d" pathLength={1} markerEnd={v[1] === false ? undefined : `url(#ar-${uid})`} style={d} />);
+    } else if (t === 'dash') {
+      out.push(<path key={k++} d={v[0]} className="dm" strokeDasharray="5 4" markerEnd={`url(#ar2-${uid})`} style={d} />);
+    } else if (t === 'dim') {
+      const [x1, x2, y, l] = v;
+      out.push(<path key={k++} d={`M${x1} ${y - 8}V${y + 8}M${x2} ${y - 8}V${y + 8}M${x1} ${y}H${x2}`} className="dm" />);
+      out.push(<text key={k++} x={(x1 + x2) / 2} y={y - 6} textAnchor="middle" className="sub">{l}</text>);
+    } else if (t === 'txt') {
+      out.push(<text key={k++} x={v[0]} y={v[1]} textAnchor={v[3] || 'start'} className="sub" style={d}>{v[2]}</text>);
+    } else if (t === 'ltxt') {
+      out.push(<text key={k++} x={v[0]} y={v[1]} textAnchor="middle" className="lab" style={d}>{v[2]}</text>);
+    } else if (t === 'note') {
+      const [x, y, s, p] = v;
+      out.push(<text key={k++} x={x} y={y} className="hn" style={{ transitionDelay: '1.6s' }}>{s}</text>);
+      if (p) out.push(<path key={k++} d={p} className="hp" pathLength={1} style={{ transitionDelay: '1.8s' }} />);
+    }
+  });
   return (
-    <section id="projects" className="py-24 relative transition-colors duration-300">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <RevealOnScroll>
-          <h2 className="flex items-center text-2xl md:text-3xl font-bold text-slate-900 dark:text-slate-100 mb-12">
-            <span className="text-primary-600 dark:text-primary-500 font-mono mr-2">03.</span> Notable Projects
-            <span className="hidden md:block ml-4 h-px bg-slate-200 dark:bg-slate-800 flex-grow max-w-xs"></span>
-          </h2>
-        </RevealOnScroll>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {projects.map((project, index) => (
-            <RevealOnScroll key={project.id} delay={index * 100} className="h-full">
-              <ProjectCard project={project} />
-            </RevealOnScroll>
-          ))}
-        </div>
-      </div>
-    </section>
+    <svg viewBox="0 0 1000 370" role="img">
+      <defs>
+        <pattern id={`hp-${uid}`} width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+          <line x1="0" y1="0" x2="0" y2="8" stroke="#eaf2ff" strokeOpacity=".28" strokeWidth="1.2" />
+        </pattern>
+        <marker id={`ar-${uid}`} viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#eaf2ff" /></marker>
+        <marker id={`ar2-${uid}`} viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10z" fill="#8fb9ff" /></marker>
+      </defs>
+      {out}
+    </svg>
   );
 };
 
-const ProjectCard: React.FC<{ project: Project }> = ({ project }) => {
-  const divRef = useRef<HTMLDivElement>(null);
-  const [isFocused, setIsFocused] = useState(false);
-  const [position, setPosition] = useState({ x: 0, y: 0 });
-  const [opacity, setOpacity] = useState(0);
-
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!divRef.current) return;
-
-    const div = divRef.current;
-    const rect = div.getBoundingClientRect();
-
-    setPosition({ x: e.clientX - rect.left, y: e.clientY - rect.top });
-  };
-
-  const handleFocus = () => {
-    setIsFocused(true);
-    setOpacity(1);
-  };
-
-  const handleBlur = () => {
-    setIsFocused(false);
-    setOpacity(0);
-  };
-
-  const handleMouseEnter = () => {
-    setOpacity(1);
-  };
-
-  const handleMouseLeave = () => {
-    setOpacity(0);
-  };
-
-  return (
-    <div
-      ref={divRef}
-      onMouseMove={handleMouseMove}
-      onFocus={handleFocus}
-      onBlur={handleBlur}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
-      className="group relative bg-white dark:bg-slate-800/50 backdrop-blur-sm rounded-xl overflow-hidden h-full border border-slate-200 dark:border-slate-700/50 transition-all duration-300 hover:-translate-y-2 shadow-sm dark:shadow-none"
-    >
-      {/* Spotlight Effect */}
-      <div
-        className="pointer-events-none absolute -inset-px opacity-0 transition duration-300 group-hover:opacity-100"
-        style={{
-          opacity,
-          background: `radial-gradient(600px circle at ${position.x}px ${position.y}px, rgba(99, 102, 241, 0.15), transparent 40%)`,
-        }}
-      />
-
-      {/* Content */}
-      <div className="relative p-8 flex flex-col h-full z-10">
-        <div className="flex justify-between items-center mb-6">
-          <div className="p-3 bg-slate-100 dark:bg-slate-900/50 rounded-lg group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors border border-slate-200 dark:border-slate-700/50 group-hover:border-primary-500/30">
-            <Folder className="w-8 h-8 text-primary-600 dark:text-primary-500" />
-          </div>
-          <div className="flex gap-4 text-slate-400">
-            {project.repoUrl && (
-              <a
-                href={project.repoUrl}
-                target="_blank"
-                rel="noreferrer"
-                className="text-slate-500 dark:text-slate-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors hover:scale-110 transform duration-200 z-20"
-                aria-label="View Source Code"
-              >
-                <Github className="w-5 h-5" />
-              </a>
-            )}
-            {project.demoUrl && (
-              <a
-                href={project.demoUrl}
-                target="_blank"
-                rel="noreferrer"
-                className="text-slate-500 dark:text-slate-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors hover:scale-110 transform duration-200 z-20"
-                aria-label="View Live Demo"
-              >
-                <ExternalLink className="w-5 h-5" />
-              </a>
-            )}
-          </div>
-        </div>
-
-        <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100 mb-2 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
-          {project.title}
-        </h3>
-
-        <p className="text-slate-600 dark:text-slate-400 mb-6 text-sm leading-relaxed flex-1">
-          {project.description}
-        </p>
-
-        <ul className="flex flex-wrap gap-2 mt-auto">
-          {project.tags.map(tag => (
-            <li key={tag} className="text-xs font-mono text-slate-500 mr-2 bg-slate-100 dark:bg-slate-900/30 px-2 py-1 rounded">
-              {tag}
-            </li>
-          ))}
-        </ul>
+export const Projects: React.FC = () => (
+  <div id="systems">
+    {systems.map((s, i) => {
+      const n = String(i + 4).padStart(2, '0');
+      return (
+        <Sheet key={s.title} id={`sys-${n}`} label={`SHEET ${n} / 12 — SYSTEM DRAWING`} cut={String.fromCharCode(68 + i)}
+          titleBlock={[['SHEET', n], ['TYPE', 'SYSTEM'], ['STATUS', s.status]]}>
+          <h2>{s.title}<small>{s.sub}</small></h2>
+          <span className="org">{s.org.toUpperCase()}</span>
+          <p style={{ maxWidth: 820, marginTop: 14 }}>{s.desc}</p>
+          <div className="dgw"><Diagram items={s.items} uid={n} /></div>
+          <div className="pmeta">{s.meta.map(([k, v]) => <div key={k}><span>{k}</span>{v}</div>)}</div>
+        </Sheet>
+      );
+    })}
+    <Sheet id="archive" label="SHEET 10 / 12 — ARCHIVE" cut="J" titleBlock={[['SHEET', '10'], ['TYPE', 'ARCHIVE'], ['ITEMS', String(archive.length).padStart(2, '0')]]}>
+      <h2>EARLIER BUILDS<small>ARCHIVED DRAWINGS · PREVIOUS PROJECTS</small></h2>
+      <div className="arch">
+        {archive.map((a, i) => (
+          <a className="arc" key={a.title} href={profile.github} target="_blank" rel="noreferrer">
+            <span className="no">DWG-{String(i + 1).padStart(3, '0')}</span>
+            <h3>{a.title}</h3>
+            <div className="t">{a.tech}</div>
+            <p>{a.desc}</p>
+          </a>
+        ))}
       </div>
-    </div>
-  );
-};
+    </Sheet>
+  </div>
+);

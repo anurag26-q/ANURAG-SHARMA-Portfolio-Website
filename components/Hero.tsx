@@ -1,107 +1,43 @@
-import React, { useState, useEffect } from 'react';
-import { ArrowDown } from 'lucide-react';
+import React from 'react';
+import { Sheet } from './Sheet';
+import { profile } from '../data';
 
-export const Hero: React.FC = () => {
-  const [text, setText] = useState('');
-  const [showContent, setShowContent] = useState(false);
-  const fullText = "I build intelligent AI systems.";
-
-  useEffect(() => {
-    // Show content after a brief delay
-    const showTimer = setTimeout(() => {
-      setShowContent(true);
-    }, 100);
-
-    return () => clearTimeout(showTimer);
-  }, []);
-
-  useEffect(() => {
-    if (!showContent) return;
-
-    let index = 0;
-    const timer = setInterval(() => {
-      setText(fullText.slice(0, index));
-      index++;
-      if (index > fullText.length) {
-        clearInterval(timer);
-      }
-    }, 50);
-    return () => clearInterval(timer);
-  }, [showContent]);
-
-  return (
-    <section id="hero" className="min-h-screen flex items-center justify-center relative overflow-hidden">
-      {/* Background gradients */}
-      <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0 pointer-events-none">
-        <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-primary-500/10 dark:bg-primary-900/10 rounded-full blur-[120px] animate-pulse"></div>
-        <div className="absolute bottom-[0%] right-[0%] w-[40%] h-[40%] bg-purple-500/10 dark:bg-purple-900/10 rounded-full blur-[120px] animate-pulse" style={{ animationDelay: '2s' }}></div>
-      </div>
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 flex flex-col items-start justify-center">
-        <span
-          className={`text-primary-600 dark:text-primary-400 font-mono tracking-wide mb-6 transition-all duration-700 ${showContent ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
-            }`}
-          style={{ transitionDelay: '200ms' }}
-        >
-          Hi, my name is
-        </span>
-        <h1
-          className={`text-5xl md:text-7xl lg:text-8xl font-bold text-slate-900 dark:text-slate-100 mb-4 tracking-tight transition-all duration-700 ${showContent ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
-            }`}
-          style={{ transitionDelay: '300ms' }}
-        >
-          <span className="bg-clip-text text-transparent bg-gradient-to-r from-slate-900 via-slate-700 to-slate-500 dark:from-slate-100 dark:via-slate-200 dark:to-slate-400">
-            Anurag Sharma.
-          </span>
-        </h1>
-        <h2
-          className={`text-4xl md:text-6xl lg:text-7xl font-bold text-slate-500 dark:text-slate-400 mb-8 tracking-tight min-h-[1.2em] transition-all duration-700 ${showContent ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
-            }`}
-          style={{ transitionDelay: '400ms' }}
-        >
-          {text}<span className="animate-pulse text-primary-600 dark:text-primary-500">|</span>
-        </h2>
-
-        <p
-          className={`max-w-2xl text-lg text-slate-600 dark:text-slate-400 mb-12 leading-relaxed transition-all duration-700 ${showContent ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
-            }`}
-          style={{ transitionDelay: '600ms' }}
-        >
-          I design and deploy <span className="text-slate-900 dark:text-slate-200">end-to-end scalable intelligent systems</span>.
-          Specializing in <span className="text-primary-600 dark:text-primary-400">Generative AI</span> (RAG, Multi-Agent Systems) and <span className="text-primary-600 dark:text-primary-400">Computer Vision</span> (YOLO).
-          I optimize large models via <span className="text-slate-900 dark:text-slate-200">LLM Fine-Tuning</span> and build production-grade backends using <span className="text-slate-900 dark:text-slate-200">FastAPI</span>, <span className="text-slate-900 dark:text-slate-200">Django</span>, and <span className="text-slate-900 dark:text-slate-200">Docker</span>.
-        </p>
-
-        <div
-          className={`flex gap-4 transition-all duration-700 ${showContent ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
-            }`}
-          style={{ transitionDelay: '800ms' }}
-        >
-          <a
-            href="#projects"
-            className="group relative px-8 py-4 bg-primary-600 text-white rounded font-medium shadow-lg shadow-primary-500/25 overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-primary-500/30"
-          >
-            <div className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:animate-[shimmer_1.5s_infinite]"></div>
-            <span className="relative">Check out my work</span>
-          </a>
-          <a
-            href="#contact"
-            className="px-8 py-4 bg-transparent border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 rounded hover:border-primary-600 dark:hover:border-primary-500 hover:text-primary-600 dark:hover:text-primary-400 transition-all duration-300 font-medium hover:-translate-y-1"
-          >
-            Contact Me
-          </a>
+export const Hero: React.FC = () => (
+  <Sheet id="title" className="hero" label="SHEET 01 / 12 — TITLE" cut="A" reveal={false}
+    titleBlock={[['DRAWN BY', 'A. SHARMA'], ['DISCIPLINE', 'AI / ML'], ['SCALE', '1 : 1']]}>
+    <div className="cons" aria-hidden>
+      <svg>
+        <line className="cl" x1="0" y1="62%" x2="100%" y2="62%" /><line className="cl" x1="82%" y1="0" x2="82%" y2="100%" />
+        <circle className="cc" cx="82%" cy="62%" r="140" /><circle className="cc" cx="82%" cy="62%" r="200" strokeDasharray="3 6" />
+        <text className="ct" x="83%" y="61%">R140</text><text className="ct" x="83%" y="20%">℄ CENTER LINE</text><text className="ct" x="4%" y="61%">DATUM A</text>
+      </svg>
+    </div>
+    <div className="lbl">PORTFOLIO DRAWING SET · AI / ML ENGINEERING</div>
+    <svg className="name" viewBox="0 0 1000 330" role="img" aria-label={profile.name}>
+      <text x="0" y="135">{profile.first}</text><text className="l2" x="0" y="295">{profile.last}</text>
+    </svg>
+    <div className="hand note">← drawn to spec, built for production</div>
+    <div className="row">
+      <div>
+        <p>{profile.role} · {profile.location}. I build and deploy <strong>production LLM systems</strong> — Agentic AI, RAG &amp; Graph RAG pipelines, LLM fine-tuning (PEFT, LoRA) and vLLM serving — currently automating insurance operations at <strong>FBSPL</strong>.</p>
+        <div className="btns">
+          <a className="btn f" href="#systems">VIEW SYSTEMS ↓</a>
+          <a className="btn" href={profile.resume} download>RESUME.PDF</a>
+          <a className="btn" href="#contact">CONTACT</a>
         </div>
       </div>
-
-      <div
-        className={`absolute bottom-10 left-1/2 transform -translate-x-1/2 animate-bounce text-slate-400 dark:text-slate-500 z-10 transition-all duration-700 ${showContent ? 'opacity-100' : 'opacity-0'
-          }`}
-        style={{ transitionDelay: '1000ms' }}
-      >
-        <a href="#about" aria-label="Scroll down">
-          <ArrowDown className="w-6 h-6" />
-        </a>
+      <div className="stamp" aria-hidden>
+        <svg viewBox="0 0 200 200"><defs><path id="cp" d="M100,100 m-80,0 a80,80 0 1,1 160,0 a80,80 0 1,1 -160,0" /></defs>
+          <circle cx="100" cy="100" r="96" fill="none" stroke="currentColor" strokeWidth="3" /><circle cx="100" cy="100" r="64" fill="none" stroke="currentColor" strokeWidth="1.5" />
+          <text fontFamily="JetBrains Mono" fontSize="15" fontWeight="700" fill="currentColor" letterSpacing="3"><textPath href="#cp">AI/ML ENGINEER · UDAIPUR · INDIA · </textPath></text></svg>
+        <div className="mid">APPROVED<br />FOR HIRE</div>
       </div>
-    </section>
-  );
-};
+    </div>
+    <div className="kpis">
+      <div><b>~2 yrs</b>PRODUCTION LLM SYSTEMS</div>
+      <div><b>90–95%</b>EXTRACTION ACCURACY</div>
+      <div><b>99%</b>ROUTING ACCURACY</div>
+      <div><b>~414 ms</b>p50 ON vLLM</div>
+    </div>
+  </Sheet>
+);

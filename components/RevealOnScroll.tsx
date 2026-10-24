@@ -1,42 +1,23 @@
 import React, { useEffect, useRef, useState } from 'react';
 
-interface Props {
-  children: React.ReactNode;
-  className?: string;
-  delay?: number;
+/** Adds the `in` class once the element scrolls into view (triggers blueprint line-drawing). */
+export function useReveal<T extends HTMLElement>(threshold = 0.15) {
+  const ref = useRef<T>(null);
+  const [inView, setInView] = useState(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const ob = new IntersectionObserver(
+      ([e]) => { if (e.isIntersecting) { setInView(true); ob.disconnect(); } },
+      { threshold }
+    );
+    ob.observe(el);
+    return () => ob.disconnect();
+  }, [threshold]);
+  return { ref, inView };
 }
 
-export const RevealOnScroll: React.FC<Props> = ({ children, className = "", delay = 0 }) => {
-  const ref = useRef<HTMLDivElement>(null);
-  const [isVisible, setIsVisible] = useState(false);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsVisible(true);
-          observer.disconnect();
-        }
-      },
-      { threshold: 0.1 }
-    );
-
-    if (ref.current) {
-      observer.observe(ref.current);
-    }
-
-    return () => observer.disconnect();
-  }, []);
-
-  return (
-    <div
-      ref={ref}
-      className={`transition-all duration-1000 transform ${
-        isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'
-      } ${className}`}
-      style={{ transitionDelay: `${delay}ms` }}
-    >
-      {children}
-    </div>
-  );
+export const RevealOnScroll: React.FC<{ children: React.ReactNode; className?: string }> = ({ children, className = '' }) => {
+  const { ref, inView } = useReveal<HTMLDivElement>();
+  return <div ref={ref} className={`rvl ${inView ? 'in' : ''} ${className}`}>{children}</div>;
 };

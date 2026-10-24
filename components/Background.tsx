@@ -1,285 +1,79 @@
-import React, { useEffect, useRef } from 'react';
-import { useTheme } from './ThemeContext';
+import React, { useEffect, useMemo, useRef } from 'react';
 
-interface Particle {
-  x: number;
-  y: number;
-  vx: number;
-  vy: number;
-  size: number;
-  opacity: number;
+function gearPath(cx: number, cy: number, r: number, teeth: number, depth: number) {
+  let d = '';
+  const n = teeth * 4;
+  for (let i = 0; i <= n; i++) {
+    const a = (i / n) * Math.PI * 2;
+    const rr = i % 4 < 2 ? r : r - depth;
+    d += (i ? 'L' : 'M') + (cx + rr * Math.cos(a)).toFixed(1) + ' ' + (cy + rr * Math.sin(a)).toFixed(1);
+  }
+  return d + 'Z';
 }
 
-interface Orb {
-  x: number;
-  y: number;
-  vx: number;
-  vy: number;
-  radius: number;
-  hue: number;
-  pulsePhase: number;
-}
+const S = { fill: 'none', stroke: '#eaf2ff', strokeWidth: 1 } as const;
 
+/** Fixed technical drawings behind the page + crosshair cursor with coordinates. */
 export const Background: React.FC = () => {
-  const { theme } = useTheme();
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const mouseRef = useRef({ x: 0, y: 0 });
-  const particlesRef = useRef<Particle[]>([]);
-  const orbsRef = useRef<Orb[]>([]);
-  const timeRef = useRef(0);
+  const xh = useRef<HTMLDivElement>(null), yh = useRef<HTMLDivElement>(null), co = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    let animationFrameId: number;
-
-    const resize = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-      initParticles();
-      initOrbs();
+    const mv = (e: MouseEvent) => {
+      if (!xh.current || !yh.current || !co.current) return;
+      xh.current.style.top = e.clientY + 'px';
+      yh.current.style.left = e.clientX + 'px';
+      co.current.style.left = e.clientX + 12 + 'px';
+      co.current.style.top = e.clientY + 12 + 'px';
+      co.current.textContent = `X ${String(e.clientX).padStart(4, '0')}  Y ${String(Math.round(e.clientY + window.scrollY)).padStart(5, '0')}`;
     };
+    window.addEventListener('mousemove', mv);
+    return () => window.removeEventListener('mousemove', mv);
+  }, []);
 
-    const handleMouseMove = (e: MouseEvent) => {
-      mouseRef.current = { x: e.clientX, y: e.clientY };
-    };
+  const net = useMemo(() => {
+    const Lx = [0, 90, 180, 270], Ly = [[40, 100, 160], [10, 70, 130, 190], [10, 70, 130, 190], [70, 130]];
+    const lines: React.ReactElement[] = [], nodes: React.ReactElement[] = [];
+    for (let a = 0; a < 3; a++) for (const y1 of Ly[a]) for (const y2 of Ly[a + 1])
+      lines.push(<line key={`${a}-${y1}-${y2}`} x1={Lx[a] + 20} y1={y1 + 20} x2={Lx[a + 1] + 20} y2={y2 + 20} {...S} strokeOpacity={0.5} />);
+    Ly.forEach((ys, a) => ys.forEach(y => nodes.push(<circle key={`n${a}-${y}`} cx={Lx[a] + 20} cy={y + 20} r={9} {...S} fill="#0b3a8a" />)));
+    return [...lines, ...nodes];
+  }, []);
 
-    // Initialize floating particles
-    const initParticles = () => {
-      particlesRef.current = [];
-      const particleCount = Math.floor((canvas.width * canvas.height) / 15000);
-      for (let i = 0; i < particleCount; i++) {
-        particlesRef.current.push({
-          x: Math.random() * canvas.width,
-          y: Math.random() * canvas.height,
-          vx: (Math.random() - 0.5) * 0.5,
-          vy: (Math.random() - 0.5) * 0.5,
-          size: Math.random() * 2 + 0.5,
-          opacity: Math.random() * 0.5 + 0.2,
-        });
-      }
-    };
-
-    // Initialize animated gradient orbs (smaller and more subtle)
-    const initOrbs = () => {
-      orbsRef.current = [
-        {
-          x: canvas.width * 0.2,
-          y: canvas.height * 0.3,
-          vx: 0.3,
-          vy: 0.2,
-          radius: 120,
-          hue: 250, // Purple
-          pulsePhase: 0,
-        },
-        {
-          x: canvas.width * 0.8,
-          y: canvas.height * 0.6,
-          vx: -0.25,
-          vy: -0.15,
-          radius: 150,
-          hue: 200, // Blue
-          pulsePhase: Math.PI,
-        },
-        {
-          x: canvas.width * 0.5,
-          y: canvas.height * 0.8,
-          vx: 0.2,
-          vy: -0.25,
-          radius: 100,
-          hue: 280, // Indigo
-          pulsePhase: Math.PI / 2,
-        },
-        {
-          x: canvas.width * 0.6,
-          y: canvas.height * 0.2,
-          vx: -0.15,
-          vy: 0.3,
-          radius: 130,
-          hue: 270, // Purple-Indigo
-          pulsePhase: Math.PI / 4,
-        },
-      ];
-    };
-
-    const draw = () => {
-      if (!ctx || !canvas) return;
-
-      const isDark = theme === 'dark';
-      timeRef.current += 0.01;
-
-      // Clear canvas with fade effect for smooth trails
-      ctx.fillStyle = isDark ? 'rgba(2, 6, 23, 0.08)' : 'rgba(255, 255, 255, 0.08)';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-      // Update and draw animated gradient orbs
-      orbsRef.current.forEach((orb) => {
-        // Update position
-        orb.x += orb.vx;
-        orb.y += orb.vy;
-
-        // Bounce off edges
-        if (orb.x < -orb.radius / 2 || orb.x > canvas.width + orb.radius / 2) {
-          orb.vx *= -1;
-          orb.x = Math.max(-orb.radius / 2, Math.min(canvas.width + orb.radius / 2, orb.x));
-        }
-        if (orb.y < -orb.radius / 2 || orb.y > canvas.height + orb.radius / 2) {
-          orb.vy *= -1;
-          orb.y = Math.max(-orb.radius / 2, Math.min(canvas.height + orb.radius / 2, orb.y));
-        }
-
-        // Pulse effect
-        orb.pulsePhase += 0.02;
-        const pulseScale = 1 + Math.sin(orb.pulsePhase) * 0.1;
-        const currentRadius = orb.radius * pulseScale;
-
-        // Create radial gradient for orb
-        const gradient = ctx.createRadialGradient(orb.x, orb.y, 0, orb.x, orb.y, currentRadius);
-
-        if (isDark) {
-          gradient.addColorStop(0, `hsla(${orb.hue}, 70%, 60%, 0.12)`);
-          gradient.addColorStop(0.5, `hsla(${orb.hue}, 70%, 50%, 0.06)`);
-          gradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
-        } else {
-          gradient.addColorStop(0, `hsla(${orb.hue}, 70%, 65%, 0.08)`);
-          gradient.addColorStop(0.5, `hsla(${orb.hue}, 70%, 55%, 0.04)`);
-          gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
-        }
-
-        ctx.fillStyle = gradient;
-        ctx.beginPath();
-        ctx.arc(orb.x, orb.y, currentRadius, 0, Math.PI * 2);
-        ctx.fill();
-      });
-
-      // Update and draw floating particles
-      particlesRef.current.forEach((particle) => {
-        // Update position
-        particle.x += particle.vx;
-        particle.y += particle.vy;
-
-        // Wrap around edges
-        if (particle.x < 0) particle.x = canvas.width;
-        if (particle.x > canvas.width) particle.x = 0;
-        if (particle.y < 0) particle.y = canvas.height;
-        if (particle.y > canvas.height) particle.y = 0;
-
-        // Calculate distance from mouse for interactive effect
-        const dx = particle.x - mouseRef.current.x;
-        const dy = particle.y - mouseRef.current.y;
-        const distance = Math.sqrt(dx * dx + dy * dy);
-
-        // Mouse interaction - particles move away from cursor
-        if (distance < 150) {
-          const force = (150 - distance) / 150;
-          particle.x += (dx / distance) * force * 2;
-          particle.y += (dy / distance) * force * 2;
-        }
-
-        // Draw particle with glow
-        const particleOpacity = isDark ? particle.opacity * 0.6 : particle.opacity * 0.4;
-
-        // Outer glow
-        ctx.fillStyle = isDark
-          ? `rgba(139, 92, 246, ${particleOpacity * 0.3})`
-          : `rgba(99, 102, 241, ${particleOpacity * 0.2})`;
-        ctx.beginPath();
-        ctx.arc(particle.x, particle.y, particle.size * 2, 0, Math.PI * 2);
-        ctx.fill();
-
-        // Inner particle
-        ctx.fillStyle = isDark
-          ? `rgba(167, 139, 250, ${particleOpacity})`
-          : `rgba(129, 140, 248, ${particleOpacity})`;
-        ctx.beginPath();
-        ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
-        ctx.fill();
-      });
-
-      // Draw enhanced grid pattern with subtle lines
-      const gridSize = 60;
-      const dotSize = 1.2;
-
-      for (let x = 0; x < canvas.width; x += gridSize) {
-        for (let y = 0; y < canvas.height; y += gridSize) {
-          // Calculate distance from mouse
-          const dx = x - mouseRef.current.x;
-          const dy = y - mouseRef.current.y;
-          const distance = Math.sqrt(dx * dx + dy * dy);
-
-          // Wave effect based on time and position
-          const wave = Math.sin(timeRef.current + x * 0.01 + y * 0.01) * 0.5 + 0.5;
-
-          // Create cursor glow effect
-          if (distance < 200) {
-            const intensity = 1 - distance / 200;
-            const glowSize = dotSize + intensity * 2.5;
-
-            // Outer glow
-            ctx.beginPath();
-            ctx.arc(x, y, glowSize * 1.5, 0, Math.PI * 2);
-            ctx.fillStyle = isDark
-              ? `rgba(99, 102, 241, ${intensity * 0.15})`
-              : `rgba(99, 102, 241, ${intensity * 0.1})`;
-            ctx.fill();
-
-            // Inner dot
-            ctx.beginPath();
-            ctx.arc(x, y, glowSize, 0, Math.PI * 2);
-            ctx.fillStyle = isDark
-              ? `rgba(139, 92, 246, ${intensity * 0.6})`
-              : `rgba(99, 102, 241, ${intensity * 0.4})`;
-            ctx.fill();
-          } else {
-            // Animate dots with wave effect
-            const animatedSize = dotSize * (0.7 + wave * 0.3);
-            ctx.beginPath();
-            ctx.arc(x, y, animatedSize, 0, Math.PI * 2);
-            ctx.fillStyle = isDark
-              ? `rgba(148, 163, 184, ${0.08 + wave * 0.08})`
-              : `rgba(148, 163, 184, ${0.12 + wave * 0.08})`;
-            ctx.fill();
-          }
-        }
-      }
-
-      animationFrameId = requestAnimationFrame(draw);
-    };
-
-    window.addEventListener('resize', resize);
-    window.addEventListener('mousemove', handleMouseMove);
-    resize();
-    draw();
-
-    return () => {
-      window.removeEventListener('resize', resize);
-      window.removeEventListener('mousemove', handleMouseMove);
-      cancelAnimationFrame(animationFrameId);
-    };
-  }, [theme]);
+  const ticks = useMemo(() => Array.from({ length: 72 }, (_, i) => {
+    const a = (i * 5 * Math.PI) / 180, r1 = i % 6 ? 142 : 132;
+    return <line key={i} x1={150 + r1 * Math.cos(a)} y1={150 + r1 * Math.sin(a)} x2={150 + 150 * Math.cos(a)} y2={150 + 150 * Math.sin(a)} {...S} />;
+  }), []);
 
   return (
     <>
-      {/* Main animated canvas */}
-      <canvas
-        ref={canvasRef}
-        className="fixed top-0 left-0 w-full h-full pointer-events-none z-0 transition-opacity duration-700"
-      />
-
-      {/* Subtle gradient overlays with smooth transitions */}
-      <div className="fixed inset-0 pointer-events-none z-0 transition-opacity duration-700">
-        {/* Animated mesh gradient */}
-        <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 via-blue-500/3 to-indigo-500/5 dark:from-purple-500/10 dark:via-blue-500/5 dark:to-indigo-500/10 animate-gradient-shift" />
-
-        {/* Smaller floating gradient orbs for additional depth */}
-        <div className="absolute top-1/4 right-1/3 w-64 h-64 bg-gradient-radial from-violet-500/15 to-transparent dark:from-violet-500/20 dark:to-transparent blur-3xl animate-float-slow" />
-        <div className="absolute bottom-1/3 left-1/4 w-72 h-72 bg-gradient-radial from-blue-500/15 to-transparent dark:from-blue-500/20 dark:to-transparent blur-3xl animate-float-slower" />
-        <div className="absolute top-1/2 right-1/4 w-56 h-56 bg-gradient-radial from-indigo-500/10 to-transparent dark:from-indigo-500/15 dark:to-transparent blur-3xl animate-float" />
+      <div className="bgdraw" aria-hidden>
+        <svg style={{ right: -140, top: '12vh' }} width="460" height="460" viewBox="0 0 460 460">
+          <g className="gear">
+            <path d={gearPath(230, 230, 200, 24, 18)} {...S} strokeWidth={1.4} />
+            <circle cx="230" cy="230" r="150" {...S} /><circle cx="230" cy="230" r="46" {...S} />
+            {[0, 1, 2, 3, 4, 5].map(i => <circle key={i} cx={230 + 100 * Math.cos((i * Math.PI) / 3)} cy={230 + 100 * Math.sin((i * Math.PI) / 3)} r="22" {...S} />)}
+          </g>
+          <line x1="0" y1="230" x2="460" y2="230" {...S} strokeDasharray="20 4 3 4" />
+          <line x1="230" y1="0" x2="230" y2="460" {...S} strokeDasharray="20 4 3 4" />
+        </svg>
+        <svg style={{ right: 250, top: 'calc(12vh + 330px)' }} width="250" height="250" viewBox="0 0 250 250">
+          <g className="gear2"><path d={gearPath(125, 125, 105, 14, 14)} {...S} strokeWidth={1.4} /><circle cx="125" cy="125" r="30" {...S} /></g>
+        </svg>
+        <svg style={{ left: -60, bottom: '6vh' }} width="300" height="300" viewBox="0 0 300 300">
+          <circle cx="150" cy="150" r="150" {...S} /><circle cx="150" cy="150" r="110" {...S} strokeDasharray="4 4" />{ticks}
+          <path d="M150 20 L165 150 L150 280 L135 150Z" {...S} /><path d="M20 150 L150 140 L280 150 L150 160Z" {...S} />
+          <text x="146" y="14" fill="#eaf2ff" fontSize="12" fontFamily="JetBrains Mono">N</text>
+        </svg>
+        <svg style={{ left: '3vw', top: '16vh' }} width="320" height="260" viewBox="0 0 320 260">
+          {net}<text x="20" y="250" fill="#eaf2ff" fontSize="11" fontFamily="JetBrains Mono">FIG. 1 — NEURAL NET, 4-LAYER</text>
+        </svg>
+        <svg style={{ left: '44vw', bottom: -40 }} width="260" height="260" viewBox="0 0 260 260">
+          <path d="M130 30 L220 80 L220 180 L130 230 L40 180 L40 80Z M130 30 L130 130 M40 80 L130 130 L220 80 M130 130 L130 230" {...S} strokeWidth={1.3} />
+          <path d="M85 55 L175 105 L175 205 M175 105 L220 80" {...S} strokeDasharray="4 4" />
+          <text x="60" y="252" fill="#eaf2ff" fontSize="11" fontFamily="JetBrains Mono">ISO VIEW — DATA CUBE</text>
+        </svg>
       </div>
+      <div className="xh" ref={xh} /><div className="yh" ref={yh} /><div className="co" ref={co} />
     </>
   );
 };
