@@ -4,7 +4,7 @@ import { profile } from '../data';
 
 export const Hero: React.FC = () => (
   <Sheet id="title" className="hero" label="SHEET 01 / 12 — TITLE" cut="A" reveal={false}
-    titleBlock={[['DRAWN BY', 'A. SHARMA'], ['DISCIPLINE', 'AI / ML'], ['SCALE', '1 : 1']]}>
+    titleBlock={[['DRAWN BY', 'ANURAG SHARMA'], ['DISCIPLINE', 'AI / ML'], ['SCALE', '1 : 1']]}>
     <div className="cons" aria-hidden>
       <svg>
         <line className="cl" x1="0" y1="62%" x2="100%" y2="62%" /><line className="cl" x1="82%" y1="0" x2="82%" y2="100%" />

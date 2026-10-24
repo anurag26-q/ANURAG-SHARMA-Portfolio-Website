@@ -22,7 +22,7 @@ export const Navbar: React.FC = () => {
   }, []);
   return (
     <div className="top">
-      <a className="brand" href="#title">A. SHARMA</a>
+      <a className="brand" href="#title">ANURAG SHARMA</a>
       <nav className={open ? 'open' : ''}>
         {links.map(([id, label]) => (
           <a key={id} href={`#${id}`} className={active === id ? 'on' : ''} onClick={() => setOpen(false)}>{label}</a>

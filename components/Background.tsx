@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef } from 'react';
+import React, { useMemo } from 'react';
 
 function gearPath(cx: number, cy: number, r: number, teeth: number, depth: number) {
   let d = '';
@@ -13,23 +13,8 @@ function gearPath(cx: number, cy: number, r: number, teeth: number, depth: numbe
 
 const S = { fill: 'none', stroke: '#eaf2ff', strokeWidth: 1 } as const;
 
-/** Fixed technical drawings behind the page + crosshair cursor with coordinates. */
+/** Fixed technical drawings behind the page. */
 export const Background: React.FC = () => {
-  const xh = useRef<HTMLDivElement>(null), yh = useRef<HTMLDivElement>(null), co = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const mv = (e: MouseEvent) => {
-      if (!xh.current || !yh.current || !co.current) return;
-      xh.current.style.top = e.clientY + 'px';
-      yh.current.style.left = e.clientX + 'px';
-      co.current.style.left = e.clientX + 12 + 'px';
-      co.current.style.top = e.clientY + 12 + 'px';
-      co.current.textContent = `X ${String(e.clientX).padStart(4, '0')}  Y ${String(Math.round(e.clientY + window.scrollY)).padStart(5, '0')}`;
-    };
-    window.addEventListener('mousemove', mv);
-    return () => window.removeEventListener('mousemove', mv);
-  }, []);
-
   const net = useMemo(() => {
     const Lx = [0, 90, 180, 270], Ly = [[40, 100, 160], [10, 70, 130, 190], [10, 70, 130, 190], [70, 130]];
     const lines: React.ReactElement[] = [], nodes: React.ReactElement[] = [];
@@ -73,7 +58,6 @@ export const Background: React.FC = () => {
           <text x="60" y="252" fill="#eaf2ff" fontSize="11" fontFamily="JetBrains Mono">ISO VIEW — DATA CUBE</text>
         </svg>
       </div>
-      <div className="xh" ref={xh} /><div className="yh" ref={yh} /><div className="co" ref={co} />
     </>
   );
 };

@@ -18,7 +18,7 @@ export const LoadingScreen: React.FC<{ onComplete: () => void }> = ({ onComplete
   return (
     <div className={`loader ${out ? 'out' : ''}`}>
       <div className="box">
-        <div className="ttl">A. SHARMA · DWG SET</div>
+        <div className="ttl">ANURAG SHARMA · PORTFOLIO</div>
         <div>{steps[Math.min(3, Math.floor(p / 34))]}</div>
         <div className="bar2"><i style={{ width: `${p}%` }} /></div>
         <div className="ln2">{String(p).padStart(3, '0')}%</div>
