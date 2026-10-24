@@ -12,11 +12,6 @@ a{color:inherit;text-decoration:none}
 p{line-height:1.8;color:#d6e4ff;font-size:14px}
 strong{color:#fff;font-weight:700}
 
-/* crosshair */
-.xh,.yh{position:fixed;pointer-events:none;z-index:60;background:#9cc3ff55}
-.xh{left:0;right:0;height:1px}.yh{top:0;bottom:0;width:1px}
-.co{position:fixed;z-index:61;pointer-events:none;font-size:10px;color:var(--dim);padding:3px 6px;background:var(--bp2);border:1px solid #9cc3ff55;white-space:nowrap}
-
 /* background drawings */
 .bgdraw{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.22}
 .bgdraw svg{position:absolute}
@@ -183,6 +178,7 @@ footer.ft{position:relative;z-index:2;text-align:center;font-size:11px;color:var
 .chat form{display:flex;border-top:1.5px solid var(--ln)}
 .chat input{flex:1;background:transparent;border:0;outline:0;color:var(--ln);font:13px 'JetBrains Mono';padding:14px}
 .chat input::placeholder{color:#8fb9ff99}
+.chat .wc{align-self:center;font-size:10px;color:var(--dim);padding:0 8px;white-space:nowrap}.chat .wc.over{color:var(--red);font-weight:700}
 .chat form button{background:var(--ln);color:var(--bp);border:0;padding:0 16px;cursor:pointer;font:700 12px 'JetBrains Mono'}
 .chat form button:disabled{opacity:.5}
 .chips{display:flex;flex-wrap:wrap;gap:6px;padding:0 14px 10px}
@@ -196,7 +192,7 @@ footer.ft{position:relative;z-index:2;text-align:center;font-size:11px;color:var
  .top{padding:10px 14px}.top nav{display:none;position:absolute;top:100%;left:0;right:0;flex-direction:column;background:var(--bp2);padding:10px;border-bottom:1px solid #eaf2ff40}
  .top nav.open{display:flex}.top .menu{display:block}.top .rev2{display:none}
  .hero .note{display:none}.tbk{grid-template-columns:auto auto}
- .xh,.yh,.co,.zt,.zl,.reg,.rl{display:none}.bgdraw{opacity:.12}.stamp{width:130px;height:130px}
+ .zt,.zl,.reg,.rl{display:none}.bgdraw{opacity:.12}.stamp{width:130px;height:130px}
  .job{grid-template-columns:1fr}.job .rv{flex-direction:row;justify-content:flex-start;padding:10px 16px;border-right:0;border-bottom:1px solid #eaf2ff90}
  .job .rv b{width:40px;height:40px;font-size:22px}.ctip{display:none}
  td,th{padding:8px}
